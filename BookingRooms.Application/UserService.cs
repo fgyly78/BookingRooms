@@ -39,5 +39,5 @@ namespace BookingRooms.Application
             return _users;
         }
     }
-
+     
 }
