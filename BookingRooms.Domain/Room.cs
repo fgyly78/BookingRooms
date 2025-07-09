@@ -17,7 +17,7 @@ namespace BookingRooms.Domain
 
     public enum RoomState
     {
-        Avaliable,
+        Available,
         Occupied
     }
 }

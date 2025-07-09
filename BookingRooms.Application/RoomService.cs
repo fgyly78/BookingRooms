@@ -23,7 +23,7 @@ namespace BookingRooms.Application
                 throw new Exception("Только Администратор может создать комнату!");
 
             room.Id = Guid.NewGuid();
-            room.State = RoomState.Avaliable;
+            room.State = RoomState.Available;
             _rooms.Add(room);
         }
 
@@ -44,7 +44,7 @@ namespace BookingRooms.Application
 
         public List<Room> GetAvailableRooms()
         {
-            return _rooms.Where(r => r.State == RoomState.Avaliable).ToList();
+            return _rooms.Where(r => r.State == RoomState.Available).ToList();
         }
 
         public Room? GetRoomById(Guid id)

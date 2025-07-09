@@ -1,4 +1,18 @@
+using BookingRooms.Application;
+using BookingRooms.Domain;
+using BookingRooms.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<AppDBContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IBookingRepository, InMemoryBookingReposirory>();
+builder.Services.AddScoped<IRoomRepository, InMemoryRoomRepository>();
+builder.Services.AddScoped<IUserRepository, InMemoryUserRepository>();
+
+builder.Services.AddScoped<BookingService>();
 
 // Add services to the container.
 

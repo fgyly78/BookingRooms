@@ -7,7 +7,7 @@ using BookingRooms.Domain;
 
 namespace BookingRooms.Application
 {
-    internal class BookingService
+    public class BookingService
     {
         private readonly List<Booking> _bookings;
         private readonly List<User> _users;
@@ -75,7 +75,7 @@ namespace BookingRooms.Application
             if (room != null)
             {
                 booking.State = BookingState.Cancelled;
-                room.State = RoomState.Avaliable;
+                room.State = RoomState.Available;
             }
         }
     }
