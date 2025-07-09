@@ -4,49 +4,49 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BookingRooms.Domain;
+using BookingRooms.Infrastructure;
 
 namespace BookingRooms.Application
 {
     public class BookingService
     {
-        private readonly List<Booking> _bookings;
-        private readonly List<User> _users;
-        private readonly List<Room> _rooms;
+        private readonly IBookingRepository _bookingRepository;
+        private readonly AppDBContext _appDBContext;
 
-        public BookingService(List<Booking> bookings, List<User> users, List<Room> rooms)
+        public BookingService(IBookingRepository bookingRepository, AppDBContext appDBContext)
         {
-            _bookings = bookings;
-            _users = users;
-            _rooms = rooms;
+            _bookingRepository = bookingRepository;
+            _appDBContext = appDBContext;
         }
 
         public List<Booking> GetBookingsForUser(Guid userId)
         {
-            return _bookings.Where(b => b.UserId == userId).ToList();
+            return _bookingRepository.GetAll().Where(b => b.UserId == userId).ToList();
         }
 
-        public void CreateBooking(Booking booking, User currentUser)
+        public void CreateBooking(Booking booking, User user)
         {
-            var room = _rooms.FirstOrDefault(r => r.Id == booking.RoomId);
+            var room = _appDBContext.Rooms.FirstOrDefault(r => r.Id == booking.Room.Id);
 
-            if (room == null) throw new Exception("Комната не найдена");
+            if (room == null)
+                throw new Exception("Комната не найдена");
 
             if (room.State == RoomState.Occupied)
                 throw new Exception("Комната уже занята");
 
             booking.Id = Guid.NewGuid();
-            booking.UserId = currentUser.Id;
-            booking.RoomId = room.Id;
-            booking.StartDate = DateTime.Now;
-            _bookings.Add(booking);
+            booking.Room = room; // используй загруженную из БД комнату
+            booking.User = user;
             room.State = RoomState.Occupied;
+
+            _appDBContext.Bookings.Add(booking);
+            _appDBContext.SaveChanges();
         }
+
 
         public string GetBookingInfo(Guid bookingId, User currentUser)
         {
-            var booking = _bookings.FirstOrDefault(b => b.Id == bookingId);
-            var room = _rooms.FirstOrDefault(r => r.Id == booking.RoomId);
-            var user = _users.FirstOrDefault(u => u.Id == booking.UserId);
+            var booking = _bookingRepository.GetById(bookingId);
 
             if (booking == null)
             {
@@ -56,12 +56,12 @@ namespace BookingRooms.Application
             if (booking.UserId != currentUser.Id && currentUser.Role != UserRole.Admin)
                 throw new UnauthorizedAccessException("Нет доступа к этой брони!");
 
-            return $"Пользователь: {user?.FullName ?? "неизвестно"}, Комната: {room?.Number ?? -1}";
+            return $"Пользователь: {booking.User?.FullName ?? "неизвестно"}, Комната: {booking.Room?.Number ?? -1}";
         }
 
         public void CancelBooking(Guid bookingId, User currentUser)
         {
-            var booking = _bookings.FirstOrDefault(b => b.Id == bookingId);
+            var booking = _bookingRepository.GetById(bookingId);
             if (booking == null)
                 throw new NullReferenceException("Бронирование не найдено.");
 
@@ -71,11 +71,12 @@ namespace BookingRooms.Application
             if (booking.State == BookingState.Cancelled)
                 throw new Exception("Бронь уже отменена");
 
-            var room = _rooms.FirstOrDefault(r => r.Id == booking.RoomId);
+            var room = _appDBContext.Rooms.FirstOrDefault(r => r.Id == booking.RoomId);
             if (room != null)
             {
                 booking.State = BookingState.Cancelled;
                 room.State = RoomState.Available;
+                _appDBContext.SaveChanges();
             }
         }
     }

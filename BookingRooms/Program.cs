@@ -8,11 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IBookingRepository, InMemoryBookingReposirory>();
-builder.Services.AddScoped<IRoomRepository, InMemoryRoomRepository>();
-builder.Services.AddScoped<IUserRepository, InMemoryUserRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingReposirory>();
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddScoped<BookingService>();
+builder.Services.AddScoped<RoomService>();
 
 // Add services to the container.
 
