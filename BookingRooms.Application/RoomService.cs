@@ -45,6 +45,7 @@ namespace BookingRooms.Application
                 throw new Exception("Нельзя удалить занятую комнату.");
 
             _db.Rooms.Remove(room);
+            _db.SaveChanges();
         }
 
         public List<Room> GetAvailableRooms()

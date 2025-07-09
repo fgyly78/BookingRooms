@@ -34,9 +34,15 @@ namespace BookingRooms.Application
             if (room.State == RoomState.Occupied)
                 throw new Exception("Комната уже занята");
 
-            booking.Id = Guid.NewGuid();
+
+            if (room.Id == Guid.Empty)
+                room.Id = Guid.NewGuid();
+
             booking.Room = room; // используй загруженную из БД комнату
             booking.User = user;
+            booking.StartDate = DateTime.UtcNow;
+            booking.EndDate = DateTime.UtcNow.AddDays(1);
+
             room.State = RoomState.Occupied;
 
             _appDBContext.Bookings.Add(booking);

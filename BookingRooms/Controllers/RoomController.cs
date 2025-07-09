@@ -30,6 +30,29 @@ namespace BookingRooms.API.Controllers
 
         }
 
+        [HttpDelete("{id}")]
+        public IActionResult DeleteRoom(Guid id, [FromBody] User user)
+        {
+            try
+            {
+                _roomService.DeleteRoom(id, user);
+                return NoContent(); // 204
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (NullReferenceException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         [HttpGet("available")]
         public ActionResult<List<Room>> GetAvailable()
         {
