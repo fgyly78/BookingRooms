@@ -13,7 +13,7 @@ namespace BookingRooms.Infrastructure
         public AppDBContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDBContext>();
-            optionsBuilder.UseNpgsql("Host=localhost;Database=BookingDB;Username=postgres;Password=Allstars1051");
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5433;Database=BookingDB;Username=postgres;Password=Allpasword");
 
             return new AppDBContext(optionsBuilder.Options);
         }
